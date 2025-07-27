@@ -148,24 +148,23 @@ const Header = () => {
   }, []);
 
   useEffect(() => {
-  const handleClickOutside = (event: MouseEvent) => {
-    if (
-      searchWrapperRef.current &&
-      !searchWrapperRef.current.contains(event.target as Node)
-    ) {
-      setIsSearchOpen(false);
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        searchWrapperRef.current &&
+        !searchWrapperRef.current.contains(event.target as Node)
+      ) {
+        setIsSearchOpen(false);
+      }
+    };
+
+    if (isSearchOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
     }
-  };
 
-  if (isSearchOpen) {
-    document.addEventListener("mousedown", handleClickOutside);
-  }
-
-  return () => {
-    document.removeEventListener("mousedown", handleClickOutside);
-  };
-}, [isSearchOpen]);
-
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isSearchOpen]);
 
   const {
     isOpen: isOpenBaseCurrency,
@@ -236,9 +235,24 @@ const Header = () => {
       >
         {/* Desktop */}
         <div className="hidden slg:grid grid-cols-4 items-center w-full py-1 max-w-[1200px] z-30 px-5 xl:px-0">
-          <LogoImage className="w-[100px] lg:w-[120px] col-span-1" />
-
-          <div ref={searchWrapperRef} className="flex justify-center h-10 col-span-2">
+          <div className="flex">
+            <LogoImage className="w-[100px] lg:w-[120px] col-span-1" />
+            <div className="flex justify-center items-center gap-3">
+              <Link href="/" className="w-full hover:text-primary cursor-pointer">
+                <p className="text-sm">Home</p>
+              </Link>
+              <Link href="/contact-us" className="w-full hover:text-primary cursor-pointer">
+                <p className="text-sm w-20">Contact Us</p>
+              </Link>
+              <Link href="/category" className="w-full hover:text-primary cursor-pointer">
+                <p className="text-sm">Shop</p>
+              </Link>
+            </div>
+          </div>
+          <div
+            ref={searchWrapperRef}
+            className="flex justify-center h-10 col-span-2"
+          >
             {isSearchOpen ? (
               <>
                 <input
@@ -354,11 +368,11 @@ const Header = () => {
                       Log In
                     </span>
                     {/* <span
-										className='cursor-pointer hover:text-primaryColor-200 transition'
-										onClick={() => router.push("/user/register")}
-									>
-										Register
-									</span> */}
+                      className="cursor-pointer hover:text-primaryColor-200 transition"
+                      onClick={() => router.push("/user/register")}
+                    >
+                      Register
+                    </span> */}
                   </div>
                 )}
               </div>
@@ -575,12 +589,12 @@ const Header = () => {
           )}
         </div>
         {/* {pathname.includes("/category") ? (
-					<CategoryPageBottomHeader />
-				) : pathname.includes("/home-item") ? (
-					<ProductPageBottomHeader />
-				) : (
-					<HomePageBottomHeader />
-				)} */}
+          <CategoryPageBottomHeader />
+        ) : pathname.includes("/home-item") ? (
+          <ProductPageBottomHeader />
+        ) : (
+          <HomePageBottomHeader />
+        )} */}
       </header>
 
       <Modal
