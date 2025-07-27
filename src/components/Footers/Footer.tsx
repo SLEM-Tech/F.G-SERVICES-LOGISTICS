@@ -34,7 +34,7 @@ const Footer = () => {
 			icon: (
 				<Iconbi.BiLogoFacebook className='text-lg sm:text-2xl text-white' />
 			),
-			link: "http://facebook.com/duply/",
+			link: "http://facebook.com",
 			backgroundColor: "bg-[#365493]",
 		},
 		// {
@@ -48,7 +48,7 @@ const Footer = () => {
 			icon: (
 				<Iconbi.BiLogoLinkedin className='text-lg sm:text-2xl text-white' />
 			),
-			link: "http://instagram.com/duply/",
+			link: "http://linkedin.com",
 			backgroundColor: "bg-[#0274B3]",
 		},
 	];
@@ -223,7 +223,7 @@ const Footer = () => {
 			<div className='mx-auto max-w-[1156px]'>
 				<div className='flex items-center justify-center py-2'>
 					<div className='text-secondary-500 text-[8px] sm:text-[10px] slg:text-xs font-[400] leading-[1.2]'>
-						Copyright&nbsp;@ {currentYear}&nbsp;{CompanyName} Alright Reserved.
+						Copyright&nbsp;@ {currentYear}&nbsp;{CompanyName}. Alright Reserved.
 					</div>
 				</div>
 			</div>

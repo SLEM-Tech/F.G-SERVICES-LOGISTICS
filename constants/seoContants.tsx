@@ -1,5 +1,5 @@
 const websiteUrl = "https://www.duply.com.ng/";
-export const websiteName = "Duply";
+export const websiteName = "FG Services";
 export const SEODATA = {
 	defaultOGImage: `https://www.duply.com.ng/_next/static/media/duply-logo.6c861d97.png`,
 	default: {

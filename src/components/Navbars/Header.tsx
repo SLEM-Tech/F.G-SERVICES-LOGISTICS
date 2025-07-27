@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { CartIconSvg, UserIconSvg } from "../SvgIcons";
 import { usePathname, useRouter } from "next/navigation";
 import HomePageBottomHeader from "./HomePageBottomHeader";
@@ -50,6 +50,9 @@ const Header = () => {
   const [isMobileNav, setIsMobileNav] = useState(false);
   const [isUserClick, setIsUserClick] = useState(false);
   const [isSearchLoading, setIsSearchLoading] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const searchWrapperRef = useRef<HTMLDivElement>(null);
   const { token, email } = useToken();
   const [searchValue, setSearchValue] = useState("");
   const { baseCurrency } = useAppSelector((state) => state.currency);
@@ -100,6 +103,7 @@ const Header = () => {
     setIsSearchLoading(true);
     if (pathname === "/search") {
       setIsSearchLoading(false);
+      setIsSearchOpen(false);
       router.push(`/search?${searchValue}`);
     } else {
       router.push(`/search?${searchValue}`);
@@ -142,6 +146,26 @@ const Header = () => {
       };
     }
   }, []);
+
+  useEffect(() => {
+  const handleClickOutside = (event: MouseEvent) => {
+    if (
+      searchWrapperRef.current &&
+      !searchWrapperRef.current.contains(event.target as Node)
+    ) {
+      setIsSearchOpen(false);
+    }
+  };
+
+  if (isSearchOpen) {
+    document.addEventListener("mousedown", handleClickOutside);
+  }
+
+  return () => {
+    document.removeEventListener("mousedown", handleClickOutside);
+  };
+}, [isSearchOpen]);
+
 
   const {
     isOpen: isOpenBaseCurrency,
@@ -214,32 +238,42 @@ const Header = () => {
         <div className="hidden slg:grid grid-cols-4 items-center w-full py-1 max-w-[1200px] z-30 px-5 xl:px-0">
           <LogoImage className="w-[100px] lg:w-[120px] col-span-1" />
 
-          <div className="flex justify-center h-10 col-span-2">
-            <input
-              type="text"
-              placeholder="I'm looking for..."
-              className="text-base text-black/70 px-4 w-[300px] xl:w-[400px] py-1 border border-[#ccc] rounded-l-sm outline-none focus:border-primaryColor-100 focus:ring-primaryColor-100 focus:ring-1 transition"
-              value={searchValue}
-              onChange={handleInputChange}
-              onKeyDown={(event) => {
-                if (event.key === "Enter") {
-                  handleSearch();
-                }
-              }}
-            />
-
-            {isSearchLoading ? (
-              <button
-                type="button"
-                className="px-6 text-primary te font-semibold transition-[.5] rounded-r-sm hover:text-primaryColor-200 focus:outline-none focus:ring focus:border-blue-300 text-xl"
-              >
-                <ImSpinner2 className="animate-spin" />
-              </button>
+          <div ref={searchWrapperRef} className="flex justify-center h-10 col-span-2">
+            {isSearchOpen ? (
+              <>
+                <input
+                  type="text"
+                  placeholder="I'm looking for..."
+                  className="text-base text-black/70 px-4 w-[300px] xl:w-[400px] py-1 border border-[#ccc] rounded-l-sm outline-none focus:border-primaryColor-100 focus:ring-primaryColor-100 focus:ring-1 transition"
+                  value={searchValue}
+                  onChange={handleInputChange}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") {
+                      handleSearch();
+                    }
+                  }}
+                />
+                {isSearchLoading ? (
+                  <button
+                    type="button"
+                    className="px-6 text-primary font-semibold transition-[.5] rounded-r-sm text-xl"
+                  >
+                    <ImSpinner2 className="animate-spin" />
+                  </button>
+                ) : (
+                  <button
+                    type="submit"
+                    className="px-6 text-primary font-semibold transition-[.5] rounded-r-sm text-xl"
+                    onClick={handleSearch}
+                  >
+                    <Search />
+                  </button>
+                )}
+              </>
             ) : (
               <button
-                type="submit"
-                className="px-6 text-primary te font-semibold transition-[.5] rounded-r-sm hover:text-primaryColor-200 focus:outline-none focus:ring focus:border-blue-300 text-xl"
-                onClick={handleSearch}
+                className="p-2 text-xl border border-primary rounded-full hover:bg-primary hover:text-white transition"
+                onClick={() => setIsSearchOpen(true)}
               >
                 <Search />
               </button>
@@ -261,7 +295,7 @@ const Header = () => {
                   </span>
                 </div>
               ) : (
-                <UserRound />
+                <UserRound className="text-primary" />
                 // <UserIconSvg className='w-8 h-8' />
               )}
 
@@ -335,7 +369,7 @@ const Header = () => {
                 <DropdownTrigger className="">
                   <button
                     type="button"
-                    className="bg-white border border-primaryColor-100 hover:bg-black cursor-pointer transition-[.4] group text-primaryColor-100 text-2xl group-hover:text-white rounded-full p-0 size-10"
+                    className="bg-white border border-primary hover:bg-black cursor-pointer transition-[.4] group text-primary text-2xl group-hover:text-white rounded-full p-0 size-10"
                   >
                     {baseCurrency?.symbol}
                   </button>
@@ -369,7 +403,7 @@ const Header = () => {
                     <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white shadow-lg flex justify-center items-center rounded-full">
                       {totalItems}
                     </span>
-                    <ShoppingCart />
+                    <ShoppingCart className="text-primary" />
                   </div>
                 )}
                 <span className="truncate text-sm font-semibold w-16 overflow-hidden">
@@ -397,7 +431,7 @@ const Header = () => {
                   <DropdownTrigger className="">
                     <button
                       type="button"
-                      className="bg-white border border-primaryColor-100 hover:bg-black cursor-pointer transition-[.4] group text-primaryColor-100 text-xl group-hover:text-white rounded-full p-0 size-8"
+                      className="bg-white border border-primary hover:bg-black cursor-pointer transition-[.4] group text-primary text-xl group-hover:text-white rounded-full p-0 size-8"
                     >
                       {baseCurrency?.symbol}
                     </button>
@@ -483,9 +517,9 @@ const Header = () => {
                     </AnimatePresence>
                   </div>
                 ) : (
-                  <UserIconSvg
+                  <UserRound
                     onClick={() => router.push("/user/login")}
-                    className="w-6 h-6"
+                    className="w-6 h-6 text-primary"
                   />
                 )}
               </div>
@@ -497,7 +531,7 @@ const Header = () => {
                   <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white shadow-lg flex justify-center items-center rounded-full">
                     {totalItems}
                   </span>
-                  <CartIconSvg />
+                  <ShoppingCart className="text-primary" />
                 </div>
               )}
             </div>
@@ -529,7 +563,7 @@ const Header = () => {
                 className="bg-primary text-white font-semibold transition-[.5] rounded-r-sm hover:bg-primaryColor-200 focus:outline-none focus:ring focus:border-blue-300 text-sm px-3"
                 onClick={handleSearch}
               >
-                <FaSearch />
+                <Search />
               </button>
             )}
           </div>

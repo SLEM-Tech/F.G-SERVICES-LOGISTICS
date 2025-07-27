@@ -18,7 +18,7 @@ export const LogoImage = ({ className }: LogoImageProps) => {
 				loading='lazy'
 				className={`!w-[80px] lg:!w-[100px] h-[80px] lg:h-[100px] duration-300 hover:scale-105 transition-[.3] hover:animate-pulse ${className}`}
 			/> */}
-      <Shirt />
+      <Shirt className="text-primary"/>
     </Link>
   );
 };
