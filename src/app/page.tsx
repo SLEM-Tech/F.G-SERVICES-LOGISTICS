@@ -3,6 +3,7 @@ import AllCategorySection from "@src/components/PageFragments/AllCategorySection
 import SortedProducts from "./(Home)/_components/SortedProducts";
 import { SEODATA } from "@constants/seoContants";
 import { Metadata } from "next";
+import NewCollections from "@src/components/NewCollections";
 
 const { description, title } = SEODATA.home;
 export const metadata: Metadata = {
