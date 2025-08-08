@@ -23,7 +23,7 @@ const page = () => {
 	return (
 		<AppLayout className="className='pt-10 mx-auto max-w-[1256px] mt-20 max-sm:mt-22">
 			<AllCategorySection />
-			<div className='mt-4 sm:mt-10'>
+			<div className='mt-4 sm:mt-10 lg:my-20 '>
 				<SortedProducts />
 			</div>
 		</AppLayout>

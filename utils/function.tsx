@@ -10,15 +10,15 @@ interface LogoImageProps {
 
 export const LogoImage = ({ className }: LogoImageProps) => {
   return (
-    <Link href="/" className="w-[150px]" style={{ width: "150px" }}>
-      {/* <Picture
+    <Link href="/" className="w-[150px]" style={{ width: "80px" }}>
+      <Picture
 				src={logoImage}
 				alt='logo'
 				priority
 				loading='lazy'
-				className={`!w-[80px] lg:!w-[100px] h-[80px] lg:h-[100px] duration-300 hover:scale-105 transition-[.3] hover:animate-pulse ${className}`}
-			/> */}
-      <Shirt className="text-primary"/>
+				className={`!w-[60px] lg:!w-[80px] h-[60px] lg:h-[80px] duration-300 hover:scale-105 transition-[.3] hover:animate-pulse ${className}`}
+			/>
+      {/* <Shirt className="text-primary"/> */}
     </Link>
   );
 };

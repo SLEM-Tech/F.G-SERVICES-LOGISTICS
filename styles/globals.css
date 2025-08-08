@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Marcellus&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -39,6 +40,7 @@
 
 body {
 	position: relative;
+	font-family: "Marcellus", sans-serif;
 }
 .pagination {
 	display: flex;
@@ -46,6 +48,8 @@ body {
 	align-items: center;
 	/* margin-top: 20px; */
 }
+
+
 
 .pagination li {
 	list-style: none;

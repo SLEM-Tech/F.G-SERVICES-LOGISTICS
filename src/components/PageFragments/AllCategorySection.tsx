@@ -1,33 +1,79 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
-
+import React, { useEffect, useState } from "react";
 import Picture from "../picture/Picture";
 import { useCategories, WooCommerce } from "../lib/woocommerce";
-import ProductCard from "../Cards/ProductCard";
-import HomeCard from "../Cards/HomeCard";
-import Carousel from "../Reusables/Carousel";
 import Link from "next/link";
-import { convertToSlug, convertToSlug2 } from "@constants";
-import { useEncryptionHelper } from "../EncryptedData";
+import { convertToSlug } from "@constants";
 import { useDispatch } from "react-redux";
 import { updateCategorySlugId } from "../config/features/subCategoryId";
 import { useRouter } from "next/navigation";
-import { heroImage } from "@public/images";
 import NewCollections from "../NewCollections";
 
+const CategoryCard = ({ 
+  category, 
+  productImage, 
+  onClick 
+}: { 
+  category: CategoryType; 
+  productImage: string; 
+  onClick: () => void;
+}) => {
+  const [isHovered, setIsHovered] = useState(false);
+
+  return (
+    <div
+      className="group relative overflow-hidden rounded-lg cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-lg"
+      onClick={onClick}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      {/* Image Container */}
+      <div className="relative aspect-[4/5] w-full overflow-hidden bg-gray-100">
+        <Picture
+          src={productImage}
+          alt={category?.name}
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+          loading="lazy"
+        />
+        
+        {/* Dark Overlay */}
+        <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-all duration-300" />
+        
+        {/* Category Content */}
+        <div className="absolute bottom-0 left-0 right-0 p-6">
+          <div className="text-white">
+            <h3 className="text-lg md:text-xl font-semibold mb-2 transform transition-transform duration-300 group-hover:translate-y-[-4px]">
+              <span dangerouslySetInnerHTML={{ __html: category?.name }} />
+            </h3>
+            <p className="text-sm opacity-90 transform transition-all duration-300 group-hover:opacity-100">
+              SHOP FOR {category?.name?.toUpperCase()}
+            </p>
+          </div>
+        </div>
+
+        {/* Hover Button */}
+        <div className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 transition-all duration-300 ${
+          isHovered ? 'opacity-100 scale-100' : 'opacity-0 scale-75'
+        }`}>
+          <button className="bg-white text-black px-6 py-3 rounded-full font-medium text-sm hover:bg-gray-100 transition-colors shadow-lg">
+            Shop Now
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const AllCategorySection = () => {
-  const sliderRef = useRef<HTMLDivElement>(null);
-  const [maxScrollTotal, setMaxScrollTotal] = useState(0);
-  const [scrollLeftTotal, setScrollLeftTotal] = useState(0);
-  const [currentIndex, setCurrentIndex] = useState(0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const dispatch = useDispatch();
   const router = useRouter();
 
-  // State to hold products by category
+  // State to hold first product image by category
   const [categoryProductsMap, setCategoryProductsMap] = useState<{
-    [key: string]: ProductType[];
+    [key: string]: string;
   }>({});
+
   // WooCommerce API Category
   const {
     data: categories,
@@ -36,7 +82,6 @@ const AllCategorySection = () => {
   } = useCategories("");
 
   const Categories: CategoryType[] = categories;
-  const TotalCatgory = Categories?.length - 1;
 
   useEffect(() => {
     const fetchCategoryProducts = async () => {
@@ -45,13 +90,13 @@ const AllCategorySection = () => {
 
         const filteredCategories = categories
           ?.filter((category: CategoryType) => category?.count > 0)
-          ?.slice(0, 5);
+          ?.slice(0, 6); // Get up to 6 categories
 
         if (filteredCategories) {
           const productsPromises = filteredCategories.map(
             async (category: CategoryType) => {
               const response = await WooCommerce.get(
-                `products?category=${category?.id}`
+                `products?category=${category?.id}&per_page=1`
               );
 
               // Check if there is at least one product in the category
@@ -62,7 +107,7 @@ const AllCategorySection = () => {
 
               return {
                 categoryId: category?.id,
-                firstProductImage: firstProductImage, // Store the first product's image
+                firstProductImage: firstProductImage,
               };
             }
           );
@@ -92,198 +137,107 @@ const AllCategorySection = () => {
     }
   }, [categories]);
 
-  const handleNext = () => {
-    if (sliderRef.current) {
-      const { scrollLeft, scrollWidth, clientWidth } = sliderRef.current;
-      const maxScroll = scrollWidth - clientWidth;
-      setScrollLeftTotal(scrollLeft);
-      setMaxScrollTotal(maxScroll);
-
-      sliderRef.current.scrollLeft += 600; // Adjust the scroll distance as needed
-      setCurrentIndex((prevIndex) =>
-        prevIndex < TotalCatgory - 1 ? prevIndex + 1 : prevIndex
-      );
-    }
+  const handleCategoryClick = (category: CategoryType) => {
+    const categorySlugId = `${convertToSlug(category?.name) + "-" + category?.id}`;
+    dispatch(updateCategorySlugId({ categorySlugId }));
+    router.push(`/category/${convertToSlug(category?.name) + "-" + category?.id}`);
   };
 
-  const handlePrev = () => {
-    if (sliderRef.current) {
-      const { scrollLeft, scrollWidth, clientWidth } = sliderRef.current;
-      const maxScroll = scrollWidth - clientWidth;
-      setScrollLeftTotal(scrollLeft);
-      setMaxScrollTotal(maxScroll);
-      // console.log(scrollLeft);
-      if (scrollLeft > 0) {
-        sliderRef.current.scrollLeft -= 600; // Adjust the scroll distance as needed
-        setCurrentIndex((prevIndex) =>
-          prevIndex > 0 ? prevIndex - 1 : prevIndex
-        );
-      }
-    }
-  };
-
-  // const handleCategoryClick = (index: number) => {
-  // 	const categorySlugId = `${
-  // 		convertToSlug(Categories[index]?.name) + "-" + Categories[index]?.id
-  // 	}`;
-  // 	dispatch(updateCategorySlugId({ categorySlugId }));
-  // 	router.push(
-  // 		`/category/${
-  // 			convertToSlug(Categories[index]?.name) + "-" + Categories[index]?.id
-  // 		}`,
-  // 	);
-  // };
+  // Filter categories that have product images
+  const categoriesWithImages = Categories?.filter(
+    (category: CategoryType) => categoryProductsMap[category?.id] && categoryProductsMap[category?.id] !== null
+  ) || [];
 
   return (
-    <>
+    <div className="w-full">
+      {/* Loading State */}
       {categoryWpIsLoading && (
-        <section className="mb-8">
-          <div className="w-full h-[100px] sm:h-[270px] bg-gray-200 rounded-md animate-pulse" />
+        <section className="mb-8 lg:mb-16">
+          {/* Hero Banner Skeleton */}
+          <div className="w-full h-[200px] sm:h-[400px] bg-gray-200 rounded-lg animate-pulse mb-8" />
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-8 overflow-x-auto hide-scrollbar mt-4 md:mt-6 lg:mt-8 pb-4">
-            <div className="w-full h-[50px] sm:h-[150px] bg-gray-200 rounded-md animate-pulse"></div>
-            <div className="w-full h-[50px] sm:h-[150px] bg-gray-200 rounded-md animate-pulse"></div>
-            <div className="w-full h-[50px] sm:h-[150px] bg-gray-200 rounded-md animate-pulse"></div>
-            <div className="w-full h-[50px] sm:h-[150px] bg-gray-200 rounded-md animate-pulse"></div>
+          {/* Categories Grid Skeleton */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+            {Array.from({ length: 6 }).map((_, index) => (
+              <div
+                key={index}
+                className="aspect-[4/5] bg-gray-200 rounded-lg animate-pulse"
+              />
+            ))}
           </div>
         </section>
       )}
 
-      {Categories && (
+      {/* Content */}
+      {Categories && !categoryWpIsLoading && (
         <>
-          <section className="mb-2 md:mb-8">
-            {categoryWpIsLoading ? (
-              <div className="w-full h-[100px] sm:h-[270px] bg-gray-200 rounded-md animate-pulse"></div>
-            ) : (
-              // <Link
-              // 	href={`${
-              // 		"/category/" +
-              // 		convertToSlug(Categories[0]?.name) +
-              // 		"-" +
-              // 		Categories[0]?.id
-              // 	}`}
-              // 	className='mt-10'
-              // >
-              // <Picture
-              // 	// src={Categories[0]?.image?.src}
-              // 	src={heroImage}
-              // 	alt={"hero-image"}
-              // 	className='w-full object-fill h-fit sm:h-[270px] bg-primaryColor-300/40'
-              // />
-              // </Link>
-              <NewCollections />
-            )}
-
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-8 overflow-x-auto hide-scrollbar mt-4 md:mt-6 lg:mt-8">
-              {categoryWpIsLoading ? (
-                // Loading state for the smaller images in the grid
-                <>
-                  <div className="w-full h-[50px] sm:h-[150px] bg-gray-200 rounded-md animate-pulse"></div>
-                  <div className="w-full h-[50px] sm:h-[150px] bg-gray-200 rounded-md animate-pulse"></div>
-                  <div className="w-full h-[50px] sm:h-[150px] bg-gray-200 rounded-md animate-pulse"></div>
-                  <div className="w-full h-[50px] sm:h-[150px] bg-gray-200 rounded-md animate-pulse"></div>
-                </>
-              ) : (
-                <>
-                  {Categories[0] && Categories[0]?.image?.src && (
-                    <Link
-                      href={`${
-                        "/category/" +
-                        convertToSlug(Categories[0]?.name) +
-                        "-" +
-                        Categories[0]?.id
-                      }`}
-                    >
-                      <Picture
-                        src={Categories[0]?.image?.src}
-                        alt={Categories[0]?.image?.alt}
-                        className="w-full object-contain sm:object-cover h-fit sm:h-[150px] rounded-md bg-yellow-50"
-                      />
-                    </Link>
-                  )}
-                  {Categories[1] && Categories[1]?.image?.src && (
-                    <Link
-                      href={`${
-                        "/category/" +
-                        convertToSlug(Categories[1]?.name) +
-                        "-" +
-                        Categories[1]?.id
-                      }`}
-                    >
-                      <Picture
-                        src={Categories[1]?.image?.src}
-                        alt={Categories[1]?.image?.alt}
-                        className="w-full object-contain sm:object-cover h-fit sm:h-[150px] rounded-md bg-yellow-50"
-                      />
-                    </Link>
-                  )}
-                  {Categories[2] && Categories[2]?.image?.src && (
-                    <Link
-                      href={`${
-                        "/category/" +
-                        convertToSlug(Categories[2]?.name) +
-                        "-" +
-                        Categories[2]?.id
-                      }`}
-                    >
-                      <Picture
-                        src={Categories[2]?.image?.src}
-                        alt={Categories[2]?.image?.alt}
-                        className="w-full object-contain sm:object-cover h-fit sm:h-[150px] rounded-md bg-yellow-50"
-                      />
-                    </Link>
-                  )}
-                  {Categories[3] && Categories[3]?.image?.src && (
-                    <Link
-                      href={`${
-                        "/category/" +
-                        convertToSlug(Categories[3]?.name) +
-                        "-" +
-                        Categories[3]?.id
-                      }`}
-                    >
-                      <Picture
-                        src={Categories[3]?.image?.src}
-                        alt={Categories[3]?.image?.alt}
-                        className="w-full object-contain sm:object-cover h-fit sm:h-[150px] rounded-md bg-yellow-50"
-                      />
-                    </Link>
-                  )}
-                </>
-              )}
-            </div>
+          {/* Hero Section */}
+          <section className="mb-8 lg:mb-16">
+            <NewCollections />
           </section>
 
-		  <p className="text-3xl mb-4">CATEGORIES</p>
+          {/* Categories Section */}
+          <section className="mb-8 lg:mb-16">
+            {/* Section Header */}
+            <div className="text-center mb-8 lg:mb-12">
+              <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
+                Shop by Category
+              </h2>
+              <p className="text-gray-600 max-w-2xl mx-auto">
+                Discover our carefully curated collections designed for every lifestyle and occasion
+              </p>
+            </div>
 
-          <div
-            className="flex max-md:pl-[250px] justify-center w-full gap-3 sm:gap-6 overflow-x-auto scroll-smooth overflow-y-hidden no-scrollbar"
-            ref={sliderRef}
-          >
-            {Categories?.map((category: CategoryType) => {
-              const productImage: any = categoryProductsMap[category?.id]; // Fetch the first product image
-
-              // Only show categories that have a product image
-              if (productImage) {
+            {/* Categories Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 px-4 sm:px-6 lg:px-8">
+              {categoriesWithImages.slice(0, 3).map((category: CategoryType) => {
+                const productImage = categoryProductsMap[category?.id];
+                
                 return (
-                  <>
-                    <HomeCard
-                      key={category?.id}
-                      id={category?.id.toString()}
-                      image={productImage} // Use the first product image
-                      name={category?.name}
-                    />
-                  </>
+                  <CategoryCard
+                    key={category?.id}
+                    category={category}
+                    productImage={productImage}
+                    onClick={() => handleCategoryClick(category)}
+                  />
                 );
-              }
+              })}
+            </div>
 
-              return null;
-            })}
-          </div>
-          {/* </Carousel> */}
+            {/* View All Categories Link */}
+            {categoriesWithImages.length > 6 && (
+              <div className="text-center mt-8 lg:mt-12">
+                <Link
+                  href="/categories"
+                  className="inline-flex items-center px-8 py-3 border border-gray-900 text-gray-900 font-medium rounded-full hover:bg-gray-900 hover:text-white transition-all duration-300"
+                >
+                  View All Categories
+                </Link>
+              </div>
+            )}
+          </section>
+          
         </>
       )}
-    </>
+
+      {/* Error State */}
+      {categoryIsError && (
+        <div className="text-center py-12">
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">
+            Unable to load categories
+          </h3>
+          <p className="text-gray-600 mb-4">
+            Please try refreshing the page or check back later
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
+          >
+            Retry
+          </button>
+        </div>
+      )}
+    </div>
   );
 };
 

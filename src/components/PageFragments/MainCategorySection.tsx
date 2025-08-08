@@ -66,7 +66,7 @@ const MainCategorySection = () => {
 					{CategoryProducts?.length > 0 && (
 						<div className='w-full px-2'>
 							<Back />
-							<div className='flex gap-2 items-center text-2xl font-medium tracking-tight text-black'>
+							<div className='mt-2 lg:mt-6 flex gap-2 items-center text-2xl font-medium tracking-tight text-black'>
 								<h4
 									dangerouslySetInnerHTML={{
 										__html: CategoryProducts[0]?.categories[0]?.name,

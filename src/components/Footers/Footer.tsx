@@ -121,7 +121,7 @@ const Footer = () => {
 	const staggerDelay = 0.2;
 
 	return (
-		<footer className='bg-white w-full py-2 flex flex-col item-center border-t-[3px] border-primary'>
+		<footer className='bg-white w-full py-2 flex flex-col item-center'>
 			<div className='mx-auto max-w-[1400px] w-full hidden slg:block'>
 				<section className='flex justify-center gap-16 mt-2'>
 					<div className='flex flex-col gap-4 w-[80%]'>
