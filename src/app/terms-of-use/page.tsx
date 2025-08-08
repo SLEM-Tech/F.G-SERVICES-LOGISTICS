@@ -361,8 +361,8 @@ const Page = () => {
 						<ul className='list-disc pl-5 mt-1 space-y-1'>
 						<li>Project completion refunds for contracts not completed within agreed timelines</li>
 						<li>Performance optimization refunds if promised efficiency gains are not achieved</li>
-						<li>Supply chain setup refunds for systems that don't meet operational requirements</li>
-						<li>Consulting service refunds for recommendations that don't deliver promised results</li>
+						<li>Supply chain setup refunds for systems that don&apos;t meet operational requirements</li>
+						<li>Consulting service refunds for recommendations that don&apos;t deliver promised results</li>
 						<li>Technology implementation refunds for systems that fail to integrate properly</li>
 						</ul>
 					</li>
