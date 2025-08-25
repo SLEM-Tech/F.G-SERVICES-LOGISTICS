@@ -46,7 +46,7 @@ const CheckoutSummarySection = () => {
 				className={`flex w-full justify-center items-center py-3 mt-4 rounded-md text-white ${
 					calculateSubtotal() === 0
 						? "bg-red-500/50"
-						: "hover:bg-primaryColor-100 bg-primary"
+						: "hover:bg-primaryColor-100 bg-primary text-black"
 				} transition font-bold text-sm sm:text-base cursor-not-allowed`}
 			>
 				{calculateSubtotal() === 0
